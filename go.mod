@@ -7,6 +7,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/reactivex/rxgo/v2 v2.5.0
 	go.mongodb.org/mongo-driver v1.17.1
+	github.com/golang/mock v1.6.0
 )
 
 require (
