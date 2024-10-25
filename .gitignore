@@ -13,7 +13,6 @@
 # Go related
 *.exe
 *.out
-*.mod
 *.sum
 vendor/
 
