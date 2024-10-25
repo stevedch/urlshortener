@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 
 	"github.com/reactivex/rxgo/v2"
@@ -11,9 +12,16 @@ import (
 	"urlshortener/pkg/models"
 )
 
+// URLCollectionInterface defines the required methods for URLServiceImpl
+type URLCollectionInterface interface {
+	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
+	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
+	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+}
+
 // URLService defines the operations for managing URLs in the database
 type URLService interface {
-	InitDatabase(client *mongo.Client, dbName, collectionName string) *mongo.Collection
+	InitDatabase(client *mongo.Client, dbName, collectionName string) URLCollectionInterface
 	SaveURL(url models.URL) rxgo.Observable
 	GetURL(shortID string) rxgo.Observable
 	UpdateURL(url models.URL) rxgo.Observable
@@ -22,11 +30,11 @@ type URLService interface {
 
 // URLServiceImpl implements URLService
 type URLServiceImpl struct {
-	UrlCollection *mongo.Collection
+	UrlCollection URLCollectionInterface
 }
 
 // InitDatabase initializes the MongoDB connection and assigns the collection
-func (s *URLServiceImpl) InitDatabase(client *mongo.Client, dbName, collectionName string) *mongo.Collection {
+func (s *URLServiceImpl) InitDatabase(client *mongo.Client, dbName, collectionName string) URLCollectionInterface {
 	s.UrlCollection = client.Database(dbName).Collection(collectionName)
 	return s.UrlCollection
 }
