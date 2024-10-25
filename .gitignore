@@ -1,0 +1,49 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Testing
+*.test
+*.log
+
+# Go related
+*.exe
+*.out
+*.mod
+*.sum
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Dependency directories
+vendor/
+
+# IDE specific files (GoLand)
+.idea/
+*.iml
+
+# VS Code files (if you also use VS Code occasionally)
+.vscode/
+
+# Go build cache
+/tmp/
+*.cache
+*.o
+
+# Ignore environment-specific configuration
+.env
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+.DS_Store
+
+# Docker related files
+docker-compose.override.yml
