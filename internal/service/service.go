@@ -10,11 +10,14 @@ import (
 	"urlshortener/pkg/models"
 )
 
+// URLServiceInstance URLService is an instance of the interface URLService which will be injected
+var URLServiceInstance URLService
+
 // CreateShortURL generates a shortened URL and stores it in the database and cache
 func CreateShortURL(originalURL string) (string, error) {
 
 	// Check if the original URL already exists in the database reactively
-	existsObservable := FindURLByOriginal(originalURL)
+	existsObservable := URLServiceInstance.FindURLByOriginal(originalURL)
 	existsResult := <-existsObservable.Observe()
 	if existsResult.E == nil && existsResult.V.(models.URL).ShortURL != "" {
 		return existsResult.V.(models.URL).ShortURL, &models.APIError{
@@ -36,7 +39,7 @@ func CreateShortURL(originalURL string) (string, error) {
 	}
 
 	// Save to MongoDB reactively
-	saveObservable := SaveURL(url)
+	saveObservable := URLServiceInstance.SaveURL(url)
 	saveResult := <-saveObservable.Observe()
 	if saveResult.E != nil {
 		return "", saveResult.E
@@ -62,7 +65,7 @@ func ResolveURL(shortID string) (string, error) {
 	}
 
 	// If not in cache, search in MongoDB reactively
-	dbObservable := GetURL(shortID)
+	dbObservable := URLServiceInstance.GetURL(shortID)
 	dbResult := <-dbObservable.Observe()
 	if dbResult.E != nil {
 		return "", errors.New("URL not found")
@@ -87,7 +90,7 @@ func ResolveURL(shortID string) (string, error) {
 // ToggleURLState toggles the enabled/disabled state of the URL
 func ToggleURLState(shortID string) (bool, error) {
 	// Retrieve the URL from the database reactively
-	dbObservable := GetURL(shortID)
+	dbObservable := URLServiceInstance.GetURL(shortID)
 	dbResult := <-dbObservable.Observe()
 	if dbResult.E != nil {
 		return false, errors.New("URL not found")
@@ -98,7 +101,7 @@ func ToggleURLState(shortID string) (bool, error) {
 	url.Enabled = !url.Enabled
 
 	// Save to MongoDB reactively
-	updateObservable := UpdateURL(url)
+	updateObservable := URLServiceInstance.UpdateURL(url)
 	updateResult := <-updateObservable.Observe()
 	if updateResult.E != nil {
 		return false, updateResult.E

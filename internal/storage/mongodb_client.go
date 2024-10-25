@@ -48,14 +48,24 @@ func (m *MongoDBService) Connect(uri string) rxgo.Observable {
 // Disconnect closes the MongoDB connection reactively
 func (m *MongoDBService) Disconnect() rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
+		// Check if the client is not initialized
+		if m.Client == nil {
+			ch <- rxgo.Of("No active MongoDB connection to disconnect")
+			log.Println("No active MongoDB connection to disconnect")
+			return
+		}
+
+		// Set up the context for disconnection
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
+		// Attempt to disconnect the client
 		if err := m.Client.Disconnect(ctx); err != nil {
 			ch <- rxgo.Error(err)
 			return
 		}
 
+		// If disconnection is successful
 		ch <- rxgo.Of("Disconnected from MongoDB")
 		log.Println("Disconnected from MongoDB reactively")
 	}})
