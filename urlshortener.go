@@ -37,7 +37,11 @@ func main() {
 		log.Println("Connected to MongoDB")
 
 		// Initialize the URL collection in MongoDB
-		service.InitDatabase(dbClient.GetClient(), cfg.MongoDBName, cfg.MongoCollection)
+		urlService := &service.URLServiceImpl{}
+		urlService.InitDatabase(dbClient.GetClient(), cfg.MongoDBName, cfg.MongoCollection)
+
+		// Set URLServiceInstance to the initialized URLService
+		service.URLServiceInstance = urlService
 	}, func(err error) {
 		log.Fatalf("MongoDB connection error: %v", err)
 	}, func() {
