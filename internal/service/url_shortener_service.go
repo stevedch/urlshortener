@@ -7,11 +7,13 @@ import (
 	"fmt"
 	"net/http"
 	"urlshortener/internal/cache"
-	"urlshortener/pkg/models"
+	"urlshortener/internal/domain"
+	"urlshortener/internal/interfaces"
+	models2 "urlshortener/internal/models"
 )
 
-// URLServiceInstance URLService is an instance of the interface URLService which will be injected
-var URLServiceInstance URLService
+// URLServiceInstance URLServiceInterface is an instance of the interface URLServiceInterface which will be injected
+var URLServiceInstance interfaces.URLServiceInterface
 
 // CreateShortURL generates a shortened URL and stores it in the database and cache
 func CreateShortURL(originalURL string) (string, error) {
@@ -19,8 +21,8 @@ func CreateShortURL(originalURL string) (string, error) {
 	// Check if the original URL already exists in the database reactively
 	existsObservable := URLServiceInstance.FindURLByOriginal(originalURL)
 	existsResult := <-existsObservable.Observe()
-	if existsResult.E == nil && existsResult.V.(models.URL).ShortURL != "" {
-		return existsResult.V.(models.URL).ShortURL, &models.APIError{
+	if existsResult.E == nil && existsResult.V.(domain.URL).ShortURL != "" {
+		return existsResult.V.(domain.URL).ShortURL, &models2.APIError{
 			Code:    http.StatusConflict,
 			Message: "URL already exists",
 		}
@@ -31,7 +33,7 @@ func CreateShortURL(originalURL string) (string, error) {
 	shortURL := fmt.Sprintf("http://localhost:8080/%s", shortID)
 
 	// Create the URL structure
-	url := models.URL{
+	url := domain.URL{
 		ID:          shortID,
 		OriginalURL: originalURL,
 		ShortURL:    shortURL,
@@ -70,7 +72,7 @@ func ResolveURL(shortID string) (string, error) {
 	if dbResult.E != nil {
 		return "", errors.New("URL not found")
 	}
-	url := dbResult.V.(models.URL)
+	url := dbResult.V.(domain.URL)
 
 	// If disabled, return an error
 	if !url.Enabled {
@@ -95,7 +97,7 @@ func ToggleURLState(shortID string) (bool, error) {
 	if dbResult.E != nil {
 		return false, errors.New("URL not found")
 	}
-	url := dbResult.V.(models.URL)
+	url := dbResult.V.(domain.URL)
 
 	// Toggle the enabled state
 	url.Enabled = !url.Enabled
@@ -123,7 +125,6 @@ func ToggleURLState(shortID string) (bool, error) {
 			return false, cacheDeleteResult.E
 		}
 	}
-
 	return url.Enabled, nil
 }
 

@@ -1,16 +1,16 @@
-// main.go
 package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 	"urlshortener/internal/cache"
 	"urlshortener/internal/config"
+	"urlshortener/internal/handler"
+	"urlshortener/internal/repository"
 	"urlshortener/internal/service"
 	"urlshortener/internal/storage"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 		log.Println("Connected to MongoDB")
 
 		// Initialize the URL collection in MongoDB
-		urlService := &service.URLServiceImpl{}
+		urlService := &repository.URLServiceImpl{}
 		urlService.InitDatabase(dbClient.GetClient(), cfg.MongoDBName, cfg.MongoCollection)
 
 		// Set URLServiceInstance to the initialized URLService
@@ -63,18 +63,15 @@ func main() {
 	// Connect to Redis using configuration details
 	cache.InitRedis(cfg.RedisAddress, cfg.RedisPassword, cfg.RedisDB)
 
+	// Instantiate services
+	urlShortenerHandler := handler.NewURLShortenerHandler()
+	urlStatHandler := handler.NewURLStatHandler()
+
 	// Define routes
-	router.POST("/shorten", func(c *gin.Context) {
-		service.ShortenURLHandler(c)
-	})
-
-	router.GET("/:id", func(c *gin.Context) {
-		service.RedirectURLHandler(c)
-	})
-
-	router.PATCH("/:id", func(c *gin.Context) {
-		service.ToggleURLStateHandler(c)
-	})
+	router.POST("/shorten", urlShortenerHandler.ShortenURLHandler)
+	router.GET("/:id", urlShortenerHandler.RedirectURLHandler)
+	router.PATCH("/:id", urlShortenerHandler.ToggleURLStateHandler)
+	router.GET("/stats/:id", urlStatHandler.GetURLStats)
 
 	// Start the server
 	log.Printf("Listening on port %s", port)
