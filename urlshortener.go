@@ -73,6 +73,10 @@ func main() {
 	router.PATCH("/:id", urlShortenerHandler.ToggleURLStateHandler)
 	router.GET("/stats/:id", urlStatHandler.GetURLStats)
 
+	// system stats
+	systemStatsHandler := handler.NewSystemStatsHandler()
+	router.GET("/system/stats", systemStatsHandler.GetSystemStats)
+
 	// Start the server
 	log.Printf("Listening on port %s", port)
 	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
