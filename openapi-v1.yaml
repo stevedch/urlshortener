@@ -1,0 +1,112 @@
+openapi: 3.0.0
+info:
+  title: URL Shortener API
+  description: API for shortening URLs, redirecting to the original URL, and viewing usage statistics.
+  version: 1.0.0
+servers:
+  - url: http://35.224.157.227
+paths:
+  /shorten:
+    post:
+      summary: Shorten a long URL
+      description: Creates a shortened URL for a given original URL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                original_url:
+                  type: string
+                  example: "https://www.example.com/very-long-url"
+      responses:
+        '200':
+          description: A shortened URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  short_url:
+                    type: string
+                    example: "http://localhost:8080/84561f"
+
+  /{short_url}:
+    get:
+      summary: Redirect to the original URL
+      description: Redirects the client to the original URL using the shortened URL identifier.
+      parameters:
+        - in: path
+          name: short_url
+          schema:
+            type: string
+          required: true
+          description: The shortened URL identifier.
+      responses:
+        '302':
+          description: Redirects to the original URL
+
+  /stats/{short_url}:
+    get:
+      summary: Get URL access statistics
+      description: Retrieves access statistics for a given shortened URL.
+      parameters:
+        - in: path
+          name: short_url
+          schema:
+            type: string
+          required: true
+          description: The shortened URL identifier.
+      responses:
+        '200':
+          description: Access statistics for the shortened URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_count:
+                    type: integer
+                    example: 1
+                  last_access:
+                    type: string
+                    format: date-time
+                    example: "2024-10-26T18:52:06Z"
+
+  /system/stats:
+    get:
+      summary: Get system statistics
+      description: Retrieves system usage statistics such as CPU, memory, and disk usage.
+      responses:
+        '200':
+          description: System statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cpu_usage:
+                    type: number
+                    format: float
+                    example: 6.529538387944046
+                  disk_total:
+                    type: integer
+                    example: 50884108288
+                  disk_usage:
+                    type: number
+                    format: float
+                    example: 13.571741576589394
+                  disk_used:
+                    type: integer
+                    example: 6903582720
+                  memory_total:
+                    type: integer
+                    example: 16767332352
+                  memory_usage:
+                    type: number
+                    format: float
+                    example: 4.879339317815891
+                  memory_used:
+                    type: integer
+                    example: 818135040
