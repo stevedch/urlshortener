@@ -11,10 +11,10 @@ import (
 func LoadConfig() *models.Config {
 	config := &models.Config{
 		Port:            getEnv("PORT", "8080"),
-		MongoURI:        getEnv("MONGO_URI", "mongodb://localhost:27017"),
+		MongoURI:        getEnv("MONGO_URI", "mongodb://mongo:27017"), // Change localhost to mongo
 		MongoDBName:     getEnv("MONGO_DB_NAME", "urlshortener"),
 		MongoCollection: getEnv("MONGO_COLLECTION", "urls"),
-		RedisAddress:    getEnv("REDIS_ADDRESS", "localhost:6379"),
+		RedisAddress:    getEnv("REDIS_ADDRESS", "redis:6379"),
 		RedisPassword:   getEnv("REDIS_PASSWORD", ""), // No password by default
 		RedisDB:         getEnvAsInt("REDIS_DB", 0),
 	}
