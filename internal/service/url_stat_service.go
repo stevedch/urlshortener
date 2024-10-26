@@ -1,4 +1,3 @@
-// internal/service/url_stat_service.go
 package service
 
 import (
@@ -13,14 +12,14 @@ import (
 
 type URLStatService struct{}
 
-// NewURLStatService crea una nueva instancia de URLStatService
+// NewURLStatService creates a new instance of URLStatService
 func NewURLStatService() *URLStatService {
 	return &URLStatService{}
 }
 
 func (s *URLStatService) GetURLStats(shortID string) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
-		// Obtiene el contador de accesos
+		// Gets the access counter
 		countObservable := cache.GetURL(shortID + ":access_count")
 		countResult := <-countObservable.Observe()
 		if countResult.E != nil {
@@ -29,7 +28,7 @@ func (s *URLStatService) GetURLStats(shortID string) rxgo.Observable {
 		}
 		countStr := countResult.V.(string)
 
-		// Convierte el contador a entero
+		// Converts the counter to an integer
 		var count int
 		if countStr == "" {
 			count = 0
@@ -42,7 +41,7 @@ func (s *URLStatService) GetURLStats(shortID string) rxgo.Observable {
 			}
 		}
 
-		// Obtiene la última marca de tiempo de acceso
+		// Gets the last access timestamp
 		lastAccessObservable := cache.GetURL(shortID + ":last_access")
 		lastAccessResult := <-lastAccessObservable.Observe()
 		if lastAccessResult.E != nil {
@@ -64,14 +63,14 @@ func (s *URLStatService) GetURLStats(shortID string) rxgo.Observable {
 
 func (s *URLStatService) RecordAccess(shortID string) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
-		// Incrementa el contador de accesos
+		// Increments the access counter
 		err := cache.IncrementURLCounter(shortID + ":access_count")
 		if err != nil {
 			ch <- rxgo.Error(err)
 			return
 		}
 
-		// Actualiza la marca de tiempo del último acceso
+		// Updates the last access timestamp
 		timestamp := time.Now().Format(time.RFC3339)
 		err = cache.SetLastAccess(shortID+":last_access", timestamp)
 		if err != nil {

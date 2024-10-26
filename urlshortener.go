@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 	"urlshortener/internal/cache"
 	"urlshortener/internal/config"
+	"urlshortener/internal/handler"
+	"urlshortener/internal/repository"
 	"urlshortener/internal/service"
 	"urlshortener/internal/storage"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 		log.Println("Connected to MongoDB")
 
 		// Initialize the URL collection in MongoDB
-		urlService := &service.URLServiceImpl{}
+		urlService := &repository.URLServiceImpl{}
 		urlService.InitDatabase(dbClient.GetClient(), cfg.MongoDBName, cfg.MongoCollection)
 
 		// Set URLServiceInstance to the initialized URLService
@@ -63,28 +64,14 @@ func main() {
 	cache.InitRedis(cfg.RedisAddress, cfg.RedisPassword, cfg.RedisDB)
 
 	// Instantiate services
-	statService := service.NewURLStatService()
-	urlService := service.NewURLShortenerService(statService)
+	urlShortenerHandler := handler.NewURLShortenerHandler()
+	urlStatHandler := handler.NewURLStatHandler()
 
 	// Define routes
-	router.POST("/shorten", urlService.ShortenURLHandler)
-	router.GET("/:id", urlService.RedirectURLHandler)
-	router.PATCH("/:id", urlService.ToggleURLStateHandler)
-	//router.GET("/stats/:id", statService.GetURLStats)
-
-	/*router.GET("/stats/:id", func(c *gin.Context) {
-		shortID := c.Param("id")
-		statsObservable := statService.GetURLStats(shortID)
-
-		result := <-statsObservable.Observe()
-		if result.E != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get URL stats"})
-			return
-		}
-
-		stats := result.V.(map[string]interface{})
-		c.JSON(http.StatusOK, stats)
-	})*/
+	router.POST("/shorten", urlShortenerHandler.ShortenURLHandler)
+	router.GET("/:id", urlShortenerHandler.RedirectURLHandler)
+	router.PATCH("/:id", urlShortenerHandler.ToggleURLStateHandler)
+	router.GET("/stats/:id", urlStatHandler.GetURLStats)
 
 	// Start the server
 	log.Printf("Listening on port %s", port)

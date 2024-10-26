@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"testing"
 	"urlshortener/internal/domain"
-	"urlshortener/internal/service"
+	"urlshortener/internal/repository"
 )
 
 // MockSingleResult simulates a single search result
@@ -45,7 +45,7 @@ func (m *MockCollection) UpdateOne(ctx context.Context, filter interface{}, upda
 // Test for SaveURL method
 func TestSaveURL(t *testing.T) {
 	mockCollection := new(MockCollection)
-	urlService := &service.URLServiceImpl{UrlCollection: mockCollection}
+	urlService := &repository.URLServiceImpl{UrlCollection: mockCollection}
 	testURL := domain.URL{ID: "testID", OriginalURL: "https://example.com"}
 
 	// Set up the expectation
@@ -63,7 +63,7 @@ func TestSaveURL(t *testing.T) {
 // Test for GetURL method
 func TestGetURL(t *testing.T) {
 	mockCollection := new(MockCollection)
-	urlService := &service.URLServiceImpl{UrlCollection: mockCollection}
+	urlService := &repository.URLServiceImpl{UrlCollection: mockCollection}
 
 	// Prepare the expected URL
 	expectedURL := domain.URL{ID: "testID", OriginalURL: "https://example.com"}
@@ -86,7 +86,7 @@ func TestGetURL(t *testing.T) {
 // Test for UpdateURL method
 func TestUpdateURL(t *testing.T) {
 	mockCollection := new(MockCollection)
-	urlService := &service.URLServiceImpl{UrlCollection: mockCollection}
+	urlService := &repository.URLServiceImpl{UrlCollection: mockCollection}
 	testURL := domain.URL{ID: "testID", OriginalURL: "https://example.com", Enabled: true}
 
 	// Simulate UpdateOne returning a successful result
