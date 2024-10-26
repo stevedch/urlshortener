@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"urlshortener/internal/cache"
 	"urlshortener/internal/domain"
+	"urlshortener/internal/interfaces"
 	models2 "urlshortener/internal/models"
-	"urlshortener/internal/repository"
 )
 
-// URLServiceInstance URLService is an instance of the interface URLService which will be injected
-var URLServiceInstance repository.URLService
+// URLServiceInstance URLServiceInterface is an instance of the interface URLServiceInterface which will be injected
+var URLServiceInstance interfaces.URLServiceInterface
 
 // CreateShortURL generates a shortened URL and stores it in the database and cache
 func CreateShortURL(originalURL string) (string, error) {
