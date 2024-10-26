@@ -190,7 +190,7 @@ endpoints principales:
 
 - **POST /shorten**: Acorta una URL larga.
 - **GET /{short_url}**: Redirige a la URL original usando el identificador.
-- **PATC /{short_url}**: Actualiza el estado.
+- **PATCH /{short_url}**: Actualiza el estado.
 - **GET /stats/{short_url}**: Obtiene estadísticas de acceso para una URL acortada.
 - **GET /system/stats**: Muestra estadísticas de uso del sistema (CPU, memoria, disco).
 
