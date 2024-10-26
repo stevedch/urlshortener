@@ -30,7 +30,7 @@ func CreateShortURL(originalURL string) (string, error) {
 
 	// Generate a unique ID (hash) for the shortened URL
 	shortID := generateShortID(originalURL)
-	shortURL := fmt.Sprintf("http://localhost:8080/%s", shortID)
+	shortURL := fmt.Sprintf("http://35.224.157.227/%s", shortID)
 
 	// Create the URL structure
 	url := domain.URL{

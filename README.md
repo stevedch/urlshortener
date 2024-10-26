@@ -192,3 +192,66 @@ endpoints principales:
 - **GET /system/stats**: Muestra estadísticas de uso del sistema (CPU, memoria, disco).
 
 Para ver la documentación en Swagger UI, apunta a [openapi-v1.yaml](openapi-v1.yaml).
+
+## Ejemplos de Solicitudes Curl
+
+A continuación, se presentan ejemplos de solicitudes `curl` para interactuar con los endpoints de la API, junto con sus respuestas.
+
+### Crear una URL Acortada
+
+```bash
+curl --location 'http://35.224.157.227/shorten' --header 'Content-Type: application/json' --data '{
+    "original_url": "https://www.example.com/very-long-url"
+}'
+```
+
+**Respuesta:**
+
+```json
+{
+    "short_url": "http://35.224.157.227/84561f"
+}
+```
+
+### Redirigir a la URL Original
+
+```bash
+curl --location 'http://35.224.157.227/84561f'
+```
+
+Esta solicitud redirige al cliente a la URL original.
+
+### Obtener Estadísticas de Acceso para una URL Acortada
+
+```bash
+curl --location 'http://35.224.157.227/stats/84561f'
+```
+
+**Respuesta:**
+
+```json
+{
+    "access_count": 1,
+    "last_access": "2024-10-26T18:52:06Z"
+}
+```
+
+### Obtener Estadísticas del Sistema
+
+```bash
+curl --location 'http://35.224.157.227/system/stats'
+```
+
+**Respuesta:**
+
+```json
+{
+    "cpu_usage": 6.529538387944046,
+    "disk_total": 50884108288,
+    "disk_usage": 13.571741576589394,
+    "disk_used": 6903582720,
+    "memory_total": 16767332352,
+    "memory_usage": 4.879339317815891,
+    "memory_used": 818135040
+}
+```
