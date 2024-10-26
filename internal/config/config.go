@@ -4,21 +4,12 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"urlshortener/internal/models"
 )
 
-type Config struct {
-	Port            string
-	MongoURI        string
-	MongoDBName     string
-	MongoCollection string
-	RedisAddress    string
-	RedisPassword   string
-	RedisDB         int
-}
-
 // LoadConfig loads configuration from environment variables or default values
-func LoadConfig() *Config {
-	config := &Config{
+func LoadConfig() *models.Config {
+	config := &models.Config{
 		Port:            getEnv("PORT", "8080"),
 		MongoURI:        getEnv("MONGO_URI", "mongodb://localhost:27017"),
 		MongoDBName:     getEnv("MONGO_DB_NAME", "urlshortener"),

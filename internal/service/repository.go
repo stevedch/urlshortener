@@ -3,13 +3,12 @@ package service
 import (
 	"context"
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
-
 	"github.com/reactivex/rxgo/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"urlshortener/pkg/models"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"time"
+	"urlshortener/internal/domain"
 )
 
 // URLCollectionInterface defines the required methods for URLServiceImpl
@@ -22,9 +21,9 @@ type URLCollectionInterface interface {
 // URLService defines the operations for managing URLs in the database
 type URLService interface {
 	InitDatabase(client *mongo.Client, dbName, collectionName string) URLCollectionInterface
-	SaveURL(url models.URL) rxgo.Observable
+	SaveURL(url domain.URL) rxgo.Observable
 	GetURL(shortID string) rxgo.Observable
-	UpdateURL(url models.URL) rxgo.Observable
+	UpdateURL(url domain.URL) rxgo.Observable
 	FindURLByOriginal(originalURL string) rxgo.Observable
 }
 
@@ -40,7 +39,7 @@ func (s *URLServiceImpl) InitDatabase(client *mongo.Client, dbName, collectionNa
 }
 
 // SaveURL saves a URL to the database reactively
-func (s *URLServiceImpl) SaveURL(url models.URL) rxgo.Observable {
+func (s *URLServiceImpl) SaveURL(url domain.URL) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -60,7 +59,7 @@ func (s *URLServiceImpl) GetURL(shortID string) rxgo.Observable {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		var url models.URL
+		var url domain.URL
 		filter := bson.M{"id": shortID}
 		err := s.UrlCollection.FindOne(ctx, filter).Decode(&url)
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -74,7 +73,7 @@ func (s *URLServiceImpl) GetURL(shortID string) rxgo.Observable {
 }
 
 // UpdateURL updates the enabled state or original URL in the database reactively
-func (s *URLServiceImpl) UpdateURL(url models.URL) rxgo.Observable {
+func (s *URLServiceImpl) UpdateURL(url domain.URL) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -96,7 +95,7 @@ func (s *URLServiceImpl) FindURLByOriginal(originalURL string) rxgo.Observable {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		var url models.URL
+		var url domain.URL
 		filter := bson.M{"original_url": originalURL}
 		err := s.UrlCollection.FindOne(ctx, filter).Decode(&url)
 		if err != nil {

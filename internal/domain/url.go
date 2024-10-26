@@ -1,4 +1,4 @@
-package models
+package domain
 
 // URL represents the structure of a shortened URL in the system
 type URL struct {

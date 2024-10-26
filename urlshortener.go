@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -63,18 +62,29 @@ func main() {
 	// Connect to Redis using configuration details
 	cache.InitRedis(cfg.RedisAddress, cfg.RedisPassword, cfg.RedisDB)
 
+	// Instantiate services
+	statService := service.NewURLStatService()
+	urlService := service.NewURLShortenerService(statService)
+
 	// Define routes
-	router.POST("/shorten", func(c *gin.Context) {
-		service.ShortenURLHandler(c)
-	})
+	router.POST("/shorten", urlService.ShortenURLHandler)
+	router.GET("/:id", urlService.RedirectURLHandler)
+	router.PATCH("/:id", urlService.ToggleURLStateHandler)
+	//router.GET("/stats/:id", statService.GetURLStats)
 
-	router.GET("/:id", func(c *gin.Context) {
-		service.RedirectURLHandler(c)
-	})
+	/*router.GET("/stats/:id", func(c *gin.Context) {
+		shortID := c.Param("id")
+		statsObservable := statService.GetURLStats(shortID)
 
-	router.PATCH("/:id", func(c *gin.Context) {
-		service.ToggleURLStateHandler(c)
-	})
+		result := <-statsObservable.Observe()
+		if result.E != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get URL stats"})
+			return
+		}
+
+		stats := result.V.(map[string]interface{})
+		c.JSON(http.StatusOK, stats)
+	})*/
 
 	// Start the server
 	log.Printf("Listening on port %s", port)

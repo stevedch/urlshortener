@@ -14,22 +14,22 @@ var (
 	ctx = context.Background()
 )
 
-// InitRedis initializes the Redis client and returns the instance
+// InitRedis inicializa el cliente de Redis
 func InitRedis(address, password string, db int) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     address,
-		Password: password, // Leave empty if no authentication is used
-		DB:       db,       // Database number
+		Password: password, // Deja vacío si no se utiliza autenticación
+		DB:       db,       // Número de la base de datos
 	})
 
-	// Optional: Test the connection to Redis to ensure it's working
+	// Opcional: Prueba la conexión a Redis para asegurar que está funcionando
 	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
 		panic("Failed to connect to Redis: " + err.Error())
 	}
 }
 
-// SetURL stores a URL in the Redis cache reactively
+// SetURL almacena una URL en el caché de Redis de forma reactiva
 func SetURL(shortID string, originalURL string) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
 		err := rdb.Set(ctx, shortID, originalURL, 24*time.Hour).Err()
@@ -41,12 +41,12 @@ func SetURL(shortID string, originalURL string) rxgo.Observable {
 	}})
 }
 
-// GetURL retrieves a URL from the Redis cache reactively
-func GetURL(shortID string) rxgo.Observable {
+// GetURL recupera una URL o valor del caché de Redis de forma reactiva
+func GetURL(key string) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
-		result, err := rdb.Get(ctx, shortID).Result()
+		result, err := rdb.Get(ctx, key).Result()
 		if errors.Is(err, redis.Nil) {
-			ch <- rxgo.Of("") // Not found in cache
+			ch <- rxgo.Of("") // No encontrado en caché
 		} else if err != nil {
 			ch <- rxgo.Error(err)
 		} else {
@@ -55,7 +55,7 @@ func GetURL(shortID string) rxgo.Observable {
 	}})
 }
 
-// DeleteURL removes a URL from the Redis cache reactively
+// DeleteURL elimina una URL del caché de Redis de forma reactiva
 func DeleteURL(shortID string) rxgo.Observable {
 	return rxgo.Defer([]rxgo.Producer{func(_ context.Context, ch chan<- rxgo.Item) {
 		err := rdb.Del(ctx, shortID).Err()
@@ -65,4 +65,25 @@ func DeleteURL(shortID string) rxgo.Observable {
 			ch <- rxgo.Of(shortID)
 		}
 	}})
+}
+
+// IncrementURLCounter incrementa el contador de accesos para una URL corta específica en Redis
+func IncrementURLCounter(key string) error {
+	_, err := rdb.Incr(ctx, key).Result()
+	return err
+}
+
+// SetLastAccess establece la marca de tiempo del último acceso para una URL corta específica en Redis
+func SetLastAccess(key string, timestamp string) error {
+	return rdb.Set(ctx, key, timestamp, 0).Err()
+}
+
+// GetLastAccess recupera la marca de tiempo del último acceso para una URL corta específica de Redis
+func GetLastAccess(key string) (string, error) {
+	lastAccess, err := rdb.Get(ctx, key).Result()
+	if errors.Is(err, redis.Nil) {
+		// Si la clave no existe, devuelve una cadena vacía
+		return "", nil
+	}
+	return lastAccess, err
 }

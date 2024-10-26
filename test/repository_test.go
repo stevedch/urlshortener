@@ -2,15 +2,14 @@ package test
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/bson"
-	"testing"
-	"urlshortener/internal/service"
-	"urlshortener/pkg/models"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"testing"
+	"urlshortener/internal/domain"
+	"urlshortener/internal/service"
 )
 
 // MockSingleResult simulates a single search result
@@ -47,7 +46,7 @@ func (m *MockCollection) UpdateOne(ctx context.Context, filter interface{}, upda
 func TestSaveURL(t *testing.T) {
 	mockCollection := new(MockCollection)
 	urlService := &service.URLServiceImpl{UrlCollection: mockCollection}
-	testURL := models.URL{ID: "testID", OriginalURL: "https://example.com"}
+	testURL := domain.URL{ID: "testID", OriginalURL: "https://example.com"}
 
 	// Set up the expectation
 	mockCollection.On("InsertOne", mock.Anything, testURL).Return(nil, nil)
@@ -57,7 +56,7 @@ func TestSaveURL(t *testing.T) {
 	item := <-observable.Observe()
 
 	assert.NoError(t, item.E)
-	assert.Equal(t, testURL, item.V.(models.URL))
+	assert.Equal(t, testURL, item.V.(domain.URL))
 	mockCollection.AssertExpectations(t)
 }
 
@@ -67,7 +66,7 @@ func TestGetURL(t *testing.T) {
 	urlService := &service.URLServiceImpl{UrlCollection: mockCollection}
 
 	// Prepare the expected URL
-	expectedURL := models.URL{ID: "testID", OriginalURL: "https://example.com"}
+	expectedURL := domain.URL{ID: "testID", OriginalURL: "https://example.com"}
 
 	// Create a mongo.SingleResult with the expected document
 	reg := bson.NewRegistry()
@@ -80,7 +79,7 @@ func TestGetURL(t *testing.T) {
 	item := <-observable.Observe()
 
 	assert.NoError(t, item.E)
-	assert.Equal(t, expectedURL, item.V.(models.URL))
+	assert.Equal(t, expectedURL, item.V.(domain.URL))
 	mockCollection.AssertExpectations(t)
 }
 
@@ -88,7 +87,7 @@ func TestGetURL(t *testing.T) {
 func TestUpdateURL(t *testing.T) {
 	mockCollection := new(MockCollection)
 	urlService := &service.URLServiceImpl{UrlCollection: mockCollection}
-	testURL := models.URL{ID: "testID", OriginalURL: "https://example.com", Enabled: true}
+	testURL := domain.URL{ID: "testID", OriginalURL: "https://example.com", Enabled: true}
 
 	// Simulate UpdateOne returning a successful result
 	mockCollection.On("UpdateOne", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
@@ -97,6 +96,6 @@ func TestUpdateURL(t *testing.T) {
 	item := <-observable.Observe()
 
 	assert.NoError(t, item.E)
-	assert.Equal(t, testURL, item.V.(models.URL))
+	assert.Equal(t, testURL, item.V.(domain.URL))
 	mockCollection.AssertExpectations(t)
 }

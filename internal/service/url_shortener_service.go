@@ -1,18 +1,31 @@
+// internal/service/url_shortener_service.go
 package service
 
 import (
 	"context"
 	"errors"
 	"net/http"
-	"urlshortener/pkg/models"
-	"urlshortener/pkg/request"
 
 	"github.com/gin-gonic/gin"
 	"github.com/reactivex/rxgo/v2"
+
+	"urlshortener/internal/interfaces"
+	"urlshortener/internal/models"
+	"urlshortener/internal/request"
 )
 
-// ShortenURLHandler handles requests for URL shortening
-func ShortenURLHandler(c *gin.Context) {
+type URLShortenerService struct {
+	StatService interfaces.URLStatService
+}
+
+// NewURLShortenerService crea una nueva instancia de URLShortenerService
+func NewURLShortenerService(statService interfaces.URLStatService) *URLShortenerService {
+	return &URLShortenerService{
+		StatService: statService,
+	}
+}
+
+func (s *URLShortenerService) ShortenURLHandler(c *gin.Context) {
 	var req request.ShortenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
@@ -21,14 +34,13 @@ func ShortenURLHandler(c *gin.Context) {
 
 	observable := rxgo.Just(req.OriginalURL)().
 		Map(func(_ context.Context, item interface{}) (interface{}, error) {
-			// Call the URL shortening service
+			// Llama al servicio de acortamiento de URL
 			shortURL, err := CreateShortURL(item.(string))
 			return shortURL, err
 		})
 
 	result := <-observable.Observe()
 	if result.E != nil {
-		// Check if the error is of type APIError
 		var apiErr *models.APIError
 		if errors.As(result.E, &apiErr) {
 			c.JSON(apiErr.Code, gin.H{"error": apiErr.Message})
@@ -41,13 +53,12 @@ func ShortenURLHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"short_url": result.V})
 }
 
-// RedirectURLHandler handles the redirection of short URLs to their original URLs
-func RedirectURLHandler(c *gin.Context) {
+func (s *URLShortenerService) RedirectURLHandler(c *gin.Context) {
 	id := c.Param("id")
 
 	observable := rxgo.Just(id)().
 		Map(func(_ context.Context, item interface{}) (interface{}, error) {
-			// Call the service to resolve the original URL
+			// Llama al servicio para resolver la URL original
 			originalURL, err := ResolveURL(item.(string))
 			return originalURL, err
 		})
@@ -58,26 +69,29 @@ func RedirectURLHandler(c *gin.Context) {
 		return
 	}
 
-	// Redirect to the original URL
+	// Registra el acceso en las estadísticas
+	recordObservable := s.StatService.RecordAccess(id)
+	recordResult := <-recordObservable.Observe()
+	if recordResult.E != nil {
+		// Puedes agregar logs aquí si lo deseas
+	}
+
+	// Redirige a la URL original
 	c.Redirect(http.StatusFound, result.V.(string))
 }
 
-// ToggleURLStateHandler handles enabling or disabling short URLs
-func ToggleURLStateHandler(c *gin.Context) {
+func (s *URLShortenerService) ToggleURLStateHandler(c *gin.Context) {
 	id := c.Param("id")
-
 	observable := rxgo.Just(id)().
 		Map(func(_ context.Context, item interface{}) (interface{}, error) {
-			// Call the service to toggle the URL state
+			// Llama al servicio para cambiar el estado de la URL
 			updated, err := ToggleURLState(item.(string))
 			return updated, err
 		})
-
 	result := <-observable.Observe()
 	if result.E != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update URL state"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"success": result.V})
 }
