@@ -39,6 +39,8 @@ Este servicio de acortamiento de URLs incluye funcionalidades adicionales:
 
 ## Arquitectura
 
+![Diagrama de arquitectura](urlshortener.png "Diagrama de arquitectura en Google Compute Engine")
+
 ### Componentes Clave:
 
 1. **MongoDB**: Almacena de manera persistente la información de URLs.
@@ -195,7 +197,8 @@ Para ver la documentación en Swagger UI, apunta a [openapi-v1.yaml](openapi-v1.
 
 ## Ejemplos de Solicitudes Curl
 
-A continuación, se presentan ejemplos de solicitudes `curl` para interactuar con los endpoints de la API, junto con sus respuestas.
+A continuación, se presentan ejemplos de solicitudes `curl` para interactuar con los endpoints de la API, junto con sus
+respuestas.
 
 ### Crear una URL Acortada
 
@@ -209,7 +212,7 @@ curl --location 'http://35.224.157.227/shorten' --header 'Content-Type: applicat
 
 ```json
 {
-    "short_url": "http://35.224.157.227/84561f"
+  "short_url": "http://35.224.157.227/84561f"
 }
 ```
 
@@ -231,8 +234,8 @@ curl --location 'http://35.224.157.227/stats/84561f'
 
 ```json
 {
-    "access_count": 1,
-    "last_access": "2024-10-26T18:52:06Z"
+  "access_count": 1,
+  "last_access": "2024-10-26T18:52:06Z"
 }
 ```
 
@@ -246,12 +249,12 @@ curl --location 'http://35.224.157.227/system/stats'
 
 ```json
 {
-    "cpu_usage": 6.529538387944046,
-    "disk_total": 50884108288,
-    "disk_usage": 13.571741576589394,
-    "disk_used": 6903582720,
-    "memory_total": 16767332352,
-    "memory_usage": 4.879339317815891,
-    "memory_used": 818135040
+  "cpu_usage": 6.529538387944046,
+  "disk_total": 50884108288,
+  "disk_usage": 13.571741576589394,
+  "disk_used": 6903582720,
+  "memory_total": 16767332352,
+  "memory_usage": 4.879339317815891,
+  "memory_used": 818135040
 }
 ```
