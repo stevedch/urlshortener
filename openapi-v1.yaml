@@ -47,6 +47,38 @@ paths:
         '302':
           description: Redirects to the original URL
 
+    patch:
+      summary: Enable or disable the shortened URL
+      description: Updates the status of the shortened URL, enabling or disabling it.
+      parameters:
+        - in: path
+          name: short_url
+          schema:
+            type: string
+          required: true
+          description: The shortened URL identifier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Update success status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+
   /stats/{short_url}:
     get:
       summary: Get URL access statistics

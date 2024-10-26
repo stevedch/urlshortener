@@ -224,6 +224,24 @@ curl --location 'http://35.224.157.227/84561f'
 
 Esta solicitud redirige al cliente a la URL original.
 
+### Habilitar/Deshabilitar una URL Acortada
+
+```bash
+curl --location --request PATCH 'http://35.224.157.227/84561f' \
+--header 'Content-Type: application/json' \
+--data '{
+    "enabled": true
+}'
+```
+
+**Respuesta:**
+
+```json
+{
+   "success": true
+}
+```
+
 ### Obtener Estadísticas de Acceso para una URL Acortada
 
 ```bash
