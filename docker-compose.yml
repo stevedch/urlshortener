@@ -39,7 +39,7 @@ services:
     networks:
       - app-network
     deploy:
-      replicas: 20  # Escalado a 20 réplicas para mayor capacidad de carga
+      replicas: 40  # Escalado a 20 réplicas para mayor capacidad de carga
       restart_policy:
         condition: on-failure
     healthcheck:
