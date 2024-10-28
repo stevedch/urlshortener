@@ -314,9 +314,3 @@ respuesta consistente con un tiempo de respuesta medio de aproximadamente 150 ms
 - **Tiempo de Respuesta Medio**: 150 ms
 - **Pico de RPS (Requests per Second)**: 209.7
 - **Errores**: 0 (todas las solicitudes fueron exitosas)
-
-### Conclusión
-
-La prueba de carga demuestra que la arquitectura de la API y la configuración de infraestructura actual pueden manejar
-el tráfico alto requerido. Este margen de rendimiento adicional también asegura que el sistema pueda adaptarse a
-incrementos de tráfico imprevistos, manteniendo un tiempo de respuesta bajo y consistente.
