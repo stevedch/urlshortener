@@ -68,8 +68,8 @@ paths:
                     example: "Not Found: URL does not exist"
 
     patch:
-      summary: Enable or disable the shortened URL
-      description: Updates the status of the shortened URL, enabling or disabling it.
+      summary: Toggle the status of the shortened URL
+      description: Toggles the status of the shortened URL, enabling it if disabled and disabling it if enabled.
       parameters:
         - in: path
           name: short_url
@@ -77,16 +77,6 @@ paths:
             type: string
           required: true
           description: The shortened URL identifier.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                enabled:
-                  type: boolean
-                  example: true
       responses:
         '200':
           description: Update success status
