@@ -16,6 +16,7 @@ los requisitos de rendimiento y escalabilidad.
 6. [Ejecución Local con Docker Compose](#ejecución-local-con-docker-compose)
 7. [Despliegue en Google Cloud](#despliegue-en-google-cloud)
 8. [Swagger API Documentation](#swagger-api-documentation)
+9. [Pruebas de Carga con Locust](#pruebas-de-carga-con-locust)
 
 ---
 
@@ -238,7 +239,7 @@ curl --location --request PATCH 'http://35.224.157.227/84561f' \
 
 ```json
 {
-   "success": true
+  "success": true
 }
 ```
 
@@ -276,3 +277,46 @@ curl --location 'http://35.224.157.227/system/stats'
   "memory_used": 818135040
 }
 ```
+
+## Pruebas de Carga con Locust
+
+Como parte de la validación de rendimiento para este proyecto, realicé pruebas de carga utilizando **Locust**, una
+herramienta de código abierto para simular múltiples usuarios concurrentes y medir el rendimiento del sistema bajo
+carga. El objetivo era verificar que la API pudiera manejar hasta 5000 RPM (requests per minute), cumpliendo con los
+requisitos de escalabilidad.
+
+### Configuración de la Prueba
+
+La configuración de Locust incluyó los siguientes parámetros:
+
+- **Número de Usuarios Concurrentes**: 50 usuarios.
+- **Ramp-up**: 1 usuario por segundo para simular una carga gradual.
+- **Duración de la Prueba**: 1 minuto.
+- **Host de Prueba**: `http://35.224.157.227`
+
+**Configuración de Locust:**
+
+![Configuración de Prueba en Locust](locust1.png)
+
+### Resultados de la Prueba
+
+Durante la prueba, el sistema fue capaz de manejar hasta 6870 RPM, superando el objetivo inicial de 5000 RPM, lo que
+demuestra que la API puede soportar picos de tráfico incluso mayores a los previstos. Las métricas mostraron una
+respuesta consistente con un tiempo de respuesta medio de aproximadamente 150 ms, sin errores en las solicitudes.
+
+**Estadísticas de Locust:**
+
+![Estadísticas de Locust](locust2.png)
+
+### Métricas Clave
+
+- **Número Total de Solicitudes**: 6870
+- **Tiempo de Respuesta Medio**: 150 ms
+- **Pico de RPS (Requests per Second)**: 209.7
+- **Errores**: 0 (todas las solicitudes fueron exitosas)
+
+### Conclusión
+
+La prueba de carga demuestra que la arquitectura de la API y la configuración de infraestructura actual pueden manejar
+el tráfico alto requerido. Este margen de rendimiento adicional también asegura que el sistema pueda adaptarse a
+incrementos de tráfico imprevistos, manteniendo un tiempo de respuesta bajo y consistente.
