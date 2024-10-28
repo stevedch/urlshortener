@@ -228,11 +228,7 @@ Esta solicitud redirige al cliente a la URL original.
 ### Habilitar/Deshabilitar una URL Acortada
 
 ```bash
-curl --location --request PATCH 'http://35.224.157.227/84561f' \
---header 'Content-Type: application/json' \
---data '{
-    "enabled": true
-}'
+curl --location --request PATCH 'curl --location --request PATCH 'http://35.224.157.227/84561f''
 ```
 
 **Respuesta:**
